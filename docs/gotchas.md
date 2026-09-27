@@ -1388,3 +1388,21 @@ Things that each cost us hours, in rough order of pain. Worth skimming before yo
     ~32.6K pair; where its collision knee sits is not measured, so a workload of
     many short-to-medium chats is the one to try it on, and one that keeps two
     or more long documents live should stay on the default.
+61. **The shipped MTP draft vocabulary is English, Danish and code. On Chinese
+    output it covers about 6% of tokens, and `SPEC=mtp` collapses to ~1.06
+    tokens per step.** The 40,960-id list (`prepare/draft_vocab_ids.json`, and
+    `mtp_draft_vocab_ids.pt` in every checkpoint built from it) was counted over
+    Danish web text, English Wikipedia, Python and the model's own outputs, and
+    a token outside it can never be drafted, so it is a certain rejection that
+    also ends the chain. Measured with the model's own tokenizer: the repo's
+    docs 96.4%, its Python 92.8%, its shell 93.4%, a Chinese prose sample 6.4%.
+    A 3090 serving mostly Chinese traffic read 1.06 mean acceptance and 35.5
+    tok/s, and 2.23 and 80.6 tok/s at `MTP_DRAFT_VOCAB=0`
+    ([#196](https://github.com/syv-ai/HyperQwen/issues/196)). So for any
+    language outside the list's corpus, start with `MTP_DRAFT_VOCAB=0` (the
+    full `lm_head`; exact either way). Or rebuild the list from your own
+    traffic with `prepare/build_draft_vocab.py --corpus`. That report's rebuilt
+    list (99.8% held-out coverage on its own corpus) reached 61-64 tok/s at
+    `CTX=long` k=3, still below the full head's 80.6 there. The truncated head's
+    win in the `CTX=fast` k=4 ladder has not been re-measured at `CTX=long`.
+    DFlash2 does not use this list.

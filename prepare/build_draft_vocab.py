@@ -61,7 +61,18 @@ def texts_from(path, limit_bytes=20_000_000):
             t = "\n".join(parts); yield t; n += len(t)
             if n > limit_bytes: return
     else:
-        t = open(path, errors="ignore").read(); yield t
+        # A plain file is one document, so yield it in ~4 KB runs of lines: the
+        # held-out split below takes every 10th text, and a file yielded whole is
+        # text 0, which put all of it in the held-out set and left the counts
+        # empty (#196).
+        buf, size = [], 0
+        for line in open(path, errors="ignore"):
+            buf.append(line); size += len(line)
+            if size >= 4096:
+                yield "".join(buf); n += size; buf, size = [], 0
+                if n > limit_bytes: return
+        if buf:
+            yield "".join(buf)
 
 counts = collections.Counter()
 held = collections.Counter()
@@ -83,6 +94,9 @@ if ids_file:
 for name in ("<|im_start|>", "<|im_end|>", "<|endoftext|>", "<think>", "</think>", "<tool_call>", "</tool_call>", "<tool_response>", "</tool_response>"):
     tid = tok.convert_tokens_to_ids(name)
     if isinstance(tid, int) and tid >= 0: special.add(tid)
+if not ids_file and not counts:
+    sys.exit("no corpus tokens were counted: pass --corpus files with text in them, or --ids; "
+             "the model dir is unchanged")
 if not ids_file:
     top = [t for t, _ in counts.most_common() if t not in special][: N - len(special)]
     ids = sorted(set(top) | special)
