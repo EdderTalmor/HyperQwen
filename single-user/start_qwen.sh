@@ -491,7 +491,6 @@ if [ "$SPEC" = "dflash2" ]; then
          "miss is a loud OutOfMemoryError; on WSL2 it is SILENT: no error, prefill" \
          "5-10x slower. Ladder 4k/16k TTFT against known-good rates before trusting it." >&2
   fi
-  [ -n "$KV_MEM" ] && EXTRA_ARGS="--kv-cache-memory=$KV_MEM ${EXTRA_ARGS}"
 elif [ "$SPEC" = "off" ] || [ "$SPEC" = "none" ]; then
   MAX_SEQS=${MAX_SEQS:-8}
   SPEC_CFG=""
@@ -505,6 +504,11 @@ else
   echo "silently running mtp -- an unrecognized SPEC in an A/B measures the wrong thing." >&2
   exit 1
 fi
+# The pin applies in every mode. The dflash2 branch above gives KV_MEM a default; under
+# mtp and off it is only ever the user's own export (docs/multi-gpu.md's "pin the KV
+# pool"). It used to be passed inside the dflash2 branch alone, so SPEC=mtp and SPEC=off
+# ignored an exported KV_MEM without a word (#68, #210).
+[ -n "${KV_MEM:-}" ] && EXTRA_ARGS="--kv-cache-memory=$KV_MEM ${EXTRA_ARGS}"
 SPEC_ARGS=()
 [ -n "$SPEC_CFG" ] && SPEC_ARGS=(--speculative-config "$SPEC_CFG")
 
