@@ -93,6 +93,10 @@ qc["ignore"] = [i for i in qc["ignore"] if i not in MTP_LINEARS]
 g = copy.deepcopy(qc["config_groups"]["group_0"])
 g["targets"] = ["re:^mtp\\.layers\\..*"] if KEEP_FC else ["re:^mtp\\..*"]
 g["weights"]["num_bits"] = BITS
+# the tensors written here are symmetric with no zero point, whatever the body
+# group declares (an AWQ body is asymmetric, #197), as in quant_heads_stream.py
+g["weights"]["symmetric"] = True
+g["weights"]["zp_dtype"] = None
 qc["config_groups"]["group_3"] = g
 write_json(d + "config.json", c)
 

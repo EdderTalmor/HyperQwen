@@ -96,6 +96,10 @@ for m in (
 g1 = copy.deepcopy(qc["config_groups"]["group_0"])
 g1["targets"] = ["re:.*lm_head$"]
 g1["weights"]["num_bits"] = BITS
+# the tensors written here are symmetric with no zero point, whatever the body
+# group declares (an AWQ body is asymmetric, #197), as in quant_heads_stream.py
+g1["weights"]["symmetric"] = True
+g1["weights"]["zp_dtype"] = None
 qc["config_groups"]["group_1"] = g1
 write_json(d + "config.json", c)
 
