@@ -29,7 +29,15 @@ export PYTORCH_CUDA_ALLOC_CONF=${PYTORCH_CUDA_ALLOC_CONF:-$ALLOC_DEFAULT}
 export FLASHINFER_DISABLE_VERSION_CHECK=1
 export VLLM_USE_FLASHINFER_SAMPLER=0
 export PATH="$PWD/venv/bin:$PATH"
-export VLLM_API_KEY="$(cat api_key.txt)"
+# Same key precedence as the launchers (resolve_api_key.sh): exported
+# VLLM_API_KEY wins, api_key.txt is the file fallback, no key = keyless
+# boot like start_qwen.sh (previously: hardcoded `cat api_key.txt`).
+ALT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ALT_REPO="$(dirname "$ALT_DIR")"
+# shellcheck disable=SC1091
+source "$ALT_REPO/resolve_api_key.sh" \
+  || { echo "[alternative] cannot source resolve_api_key.sh - refusing to boot with an unknown key" >&2; exit 1; }
+resolve_vllm_key
 export VLLM_DFLASH2_LOOKUP=${LOOKUP:-1}
 # The multi-query 3D verify for the int4 cache (patches/spec-decode-int4-kv-mq3d.patch) was opt-in and nothing
 # set it, so this profile ran the stock 2D verify: on a 4090 at 120k, DFlash2 k=7, fresh prefill, decode 43.9 / 26.5 /

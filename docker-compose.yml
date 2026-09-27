@@ -77,7 +77,7 @@ x-serve: &serve
             count: ${GPU_COUNT:-1}
             capabilities: [gpu]
   restart: unless-stopped
-  stop_grace_period: 30s
+  stop_grace_period: 300s  # torch.compile + CUDA graphs take minutes; 30s SIGKILLed first boots mid-compile
   healthcheck:
     test: ["CMD", "curl", "-sf", "http://127.0.0.1:${PORT:-18020}/health"]
     interval: 30s
