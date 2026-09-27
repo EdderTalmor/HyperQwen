@@ -71,7 +71,7 @@ flowchart TD
   Q3 -->|"yes — code edits, RAG,<br/>rewrites, translation"| C["<b>C — reproduction</b>"]
 ```
 
-Starting from the `.env` you copied in Quick start, which already ships **B**:
+Starting from the `.env` you copied in Quick start — which ships the `.env.example` default (`SPEC=dflash2`, `PREFIX_CACHE=1`), closest to **B** with a faster drafter:
 
 | | change in `.env` | start with | what you get |
 |---|---|---|---|

@@ -804,6 +804,24 @@ export VLLM_USE_FLASHINFER_SAMPLER=0
 source "$REPO/resolve_api_key.sh"
 resolve_vllm_key
 
+# Operability: loud banner when the server binds off-loopback with no key.
+_BOOT_HOST=${HOST:-0.0.0.0}
+case "$_BOOT_HOST" in 127.*|::1|localhost) ;;
+  *) if [ -z "${VLLM_API_KEY:-}" ] && [ ! -s "$REPO/api_key.txt" ]; then
+       echo "[start_qwen] WARNING: unauthenticated API on $_BOOT_HOST:$PORT (no VLLM_API_KEY or api_key.txt)" >&2
+       echo "[start_qwen] WARNING: anyone on the network can use it - set VLLM_API_KEY or bind HOST=127.0.0.1" >&2
+     fi ;;
+esac
+# Boot heartbeat: one line a minute until /health 200, so a silent multi-minute
+# boot is visibly alive. The background probe exits on the first 200 (bounded:
+# 60 tries); it survives the exec below by design and then gets out of the way.
+_BOOT_T0=$SECONDS
+( for _b in $(seq 1 60); do
+    sleep 60
+    curl -sf -o /dev/null "http://127.0.0.1:$PORT/health" 2>/dev/null && exit 0
+    echo "[start_qwen] still starting ($((SECONDS - _BOOT_T0))s elapsed; engine logs above, qwen.log under systemd)"
+  done ) &
+
 exec venv/bin/vllm serve "$MODEL" \
   --served-model-name qwen3.8-27b \
   --host ${HOST:-0.0.0.0} --port $PORT \

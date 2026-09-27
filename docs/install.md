@@ -129,8 +129,9 @@ First start takes a few minutes (torch.compile, CUDA graph capture, flashinfer
 JIT). Test it:
 
 ```bash
+OPENAI_API_KEY=$(cat api_key.txt)
 curl http://localhost:18020/v1/chat/completions \
-  -H "Authorization: Bearer $(cat api_key.txt 2>/dev/null)" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model": "qwen3.8-27b",
        "messages": [{"role": "user", "content": "hej"}],
