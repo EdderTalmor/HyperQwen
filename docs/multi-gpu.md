@@ -78,9 +78,10 @@ suggests (`--kv-cache-memory=2975129437`, 155,316 tokens) booted and serves
 128k ([#68](https://github.com/syv-ai/HyperQwen/issues/68)). On four 8 GB 3060
 Tis at TP=4, setups A, B, C and D all ran out of memory at startup at their
 shipped settings, and only E booted as shipped
-([#210](https://github.com/syv-ai/HyperQwen/issues/210)). Before #214 the
-launcher passed `KV_MEM` only under `SPEC=dflash2`. On an older checkout, pass
-the pin for `SPEC=mtp` as `EXTRA_ARGS="... --kv-cache-memory=<bytes>"`.
+([#210](https://github.com/syv-ai/HyperQwen/issues/210)). Until
+[#214](https://github.com/syv-ai/HyperQwen/pull/214), the launcher passes
+`KV_MEM` to vLLM only under `SPEC=dflash2`. Under `SPEC=mtp` or `SPEC=off`,
+pass the pin as `EXTRA_ARGS="... --kv-cache-memory=<bytes>"`.
 
 What the second card is worth is now measured, not assumed —
 [#40](https://github.com/syv-ai/HyperQwen/issues/40) ran a controlled
