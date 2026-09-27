@@ -83,6 +83,10 @@ qc = c["quantization_config"]
 g2 = copy.deepcopy(qc["config_groups"]["group_1"])
 g2["targets"] = ["re:.*embed_tokens$"]
 g2["weights"]["num_bits"] = BITS
+# the tensors written here are symmetric with no zero point, whatever the body
+# group declares (an AWQ body is asymmetric, #197), as in quant_heads_stream.py
+g2["weights"]["symmetric"] = True
+g2["weights"]["zp_dtype"] = None
 qc["config_groups"]["group_2"] = g2
 write_json(d + "config.json", c)
 
