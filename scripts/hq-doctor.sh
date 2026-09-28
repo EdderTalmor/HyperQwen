@@ -18,8 +18,6 @@ warn() { printf 'doctor: WARNING: %s\n' "$1"; }
 say "== config"
 if [ -f "$REPO/resolve_config.sh" ]; then
   # shellcheck disable=SC1091
-  # Report-only: never fail closed on an occupied PORT (the live server owns it).
-  export HQ_SKIP_PORT_CHECK=1
   source "$REPO/resolve_config.sh" || { say "doctor: cannot source resolve_config.sh"; exit 2; }
   # Mode is advisory here: report the single-user resolution; batch users
   # get the same port/key/GPU sections below regardless.

@@ -129,7 +129,7 @@ First start takes a few minutes (torch.compile, CUDA graph capture, flashinfer
 JIT). Test it:
 
 ```bash
-OPENAI_API_KEY=$(cat api_key.txt)
+OPENAI_API_KEY=$(cat api_key.txt 2>/dev/null)
 curl http://localhost:18020/v1/chat/completions \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \

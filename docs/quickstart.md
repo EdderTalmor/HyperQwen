@@ -54,5 +54,5 @@ make doctor
   `VLLM_WSL2_ENABLE_PIN_MEMORY=1` in `.env`.
 
 Still stuck? The failure signatures live in
-[docs/gotchas/wsl2.md](gotchas/wsl2.md), the full container reference in
+[docs/gotchas.md](gotchas.md), the full container reference in
 [docs/docker.md](docker.md).

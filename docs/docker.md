@@ -6,7 +6,7 @@
 > 3. First boot takes 2–15 min; follow it with `make logs`.
 > 4. Boot OOM? Fall back to `GPU_UTIL=0.93` in `.env`.
 > 5. Exit 137 in prepare? Raise WSL memory (`memory=20GB`, `swap=8GB`), then `wsl --shutdown`.
-> 6. Verify with `make doctor`. Stuck? See [gotchas/wsl2.md](gotchas/wsl2.md).
+> 6. Verify with `make doctor`. Stuck? See [gotchas.md](gotchas.md).
 
 
 The container image (same stack, frozen) and an independent WSL2 reproduction with its memory caveats.

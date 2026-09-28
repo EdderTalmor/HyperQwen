@@ -18,9 +18,6 @@
 #   3. Prints the redacted effective configuration to stderr: every control
 #      with its resolved value, secrets as presence-only (VLLM_API_KEY is
 #      never printed, only set/unset + length; api_key.txt as present/absent).
-#   4. Refuses (exit 1) when PORT already has a listener (ss -ltn): a second
-#      engine on a live port either dies in bind or looks healthy while
-#      getting no traffic. Skipped with a warning when ss is not installed.
 #
 # Fail-closed: refusal paths call exit, which terminates a sourcing launcher
 # even without `set -e`. This file needs nothing but bash and REPO set.
@@ -38,22 +35,6 @@ _refuse() {
 # and cross-mode knobs come along for the ride in a shared .env.
 _warn() {
   echo "resolve_config: WARNING: $1" >&2
-}
-
-# _preflight_port refuses when PORT already has a listener. A second engine on
-# a live port either dies in bind or, worse, looks healthy while getting no
-# traffic — fail closed with the next step. No ss on the box (minimal
-# containers): warn and continue, never refuse on a check that could not run.
-_preflight_port() {
-  # hq-doctor.sh sets HQ_SKIP_PORT_CHECK=1: it reports on a live port,
-  # so refusing there would turn every healthy server into a failure.
-  [ "${HQ_SKIP_PORT_CHECK:-0}" = 1 ] && return 0
-  local _port=${PORT:-18020}
-  command -v ss >/dev/null 2>&1 \
-    || { _warn "ss not found, skipping PORT=$_port listener preflight"; return 0; }
-  if ss -ltn 2>/dev/null | grep -qE "[:.]${_port}[[:space:]]"; then
-    _refuse "PORT=$_port already has a listener (ss -ltn). Next step: retry on a free port, e.g. PORT=18021"
-  fi
 }
 
 resolve_effective_config() {
@@ -81,9 +62,6 @@ resolve_effective_config() {
     [ -z "${CTX:-}" ] || _warn "CTX=$CTX is set but batch mode ignores it (CTX is a single-user control)"
     [ -z "${SPEC:-}" ] || _warn "SPEC=$SPEC is set but batch mode ignores it (SPEC is a single-user control)"
   fi
-
-  # Port preflight: fail closed on an occupied PORT (warn-only without ss).
-  _preflight_port
 
   # 2. EXTRA_ARGS shadow warnings. The launchers expand EXTRA_ARGS after their
   # own flags, so any of these in EXTRA_ARGS silently wins; say so.

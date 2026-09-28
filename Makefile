@@ -15,11 +15,11 @@ up-batch: ## serve API backend / many concurrent
 	docker compose --profile batch up -d
 	@echo "first boot compiles (~2-15 min); follow with: make logs"
 
-down: ## stop server (grace 300s: compile must not be SIGKILLed mid-boot)
+down: ## stop server
 	docker compose down
 
-logs: ## follow server logs (bounded: Ctrl-C anytime)
-	docker logs -f hyperqwen-single-1 2>&1 | tail -30; docker logs -f hyperqwen-batch-1 2>&1 | tail -30
+logs: ## follow server logs (Ctrl-C anytime)
+	docker compose logs -f --tail 30
 
 ps: ## container state + /health from inside WSL/network namespace
 	docker ps --filter name=hyperqwen --format "{{.Names}} {{.Status}}"
