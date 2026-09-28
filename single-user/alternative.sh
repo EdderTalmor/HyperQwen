@@ -34,6 +34,7 @@ export PATH="$PWD/venv/bin:$PATH"
 # boot like start_qwen.sh (previously: hardcoded `cat api_key.txt`).
 ALT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ALT_REPO="$(dirname "$ALT_DIR")"
+REPO="$ALT_REPO"   # resolve_vllm_key reads $REPO/api_key.txt; unset, the file fallback silently finds nothing and the server boots with no key
 # shellcheck disable=SC1091
 source "$ALT_REPO/resolve_api_key.sh" \
   || { echo "[alternative] cannot source resolve_api_key.sh - refusing to boot with an unknown key" >&2; exit 1; }

@@ -12,13 +12,20 @@ make keygen                               # or: echo "VLLM_API_KEY=$(openssl ran
 docker compose --profile single up -d     # chatting; `--profile batch` for an API backend
 ```
 
+**On Windows** this runs through Docker Desktop with its WSL2 backend (turn on
+"Use the WSL 2 based engine"); there is no native-Windows path, because the
+container and the patched vLLM are Linux. Run the commands above from a WSL2
+distro, or from PowerShell if Docker Desktop is set up as above, and read
+[docs/wsl2-4090.md](wsl2-4090.md) once. On Linux you only need Docker, the
+NVIDIA driver and the NVIDIA Container Toolkit.
+
 One GPU runs one mode at a time (`docker compose --profile single down`
 before switching). The shipped `.env` is the single-user DFlash2 profile
 (`SPEC=dflash2`, `PREFIX_CACHE=1`); every knob is documented in
 [single-user/README.md](../single-user/README.md) and
 [batch/README.md](../batch/README.md).
 
-First boot takes **2–15 min**: it pulls the image (~9.5 GB), downloads and
+First boot usually takes **2–15 min** once the image is pulled (the entrypoint warns it can pass 30 min on a slow link or disk): it pulls the image (~9.5 GB), downloads and
 requantizes the model (~20 GB, once, into `./models`), then compiles
 (torch.compile / CUDA graphs / FlashInfer JIT, cached in `qwen-cache`
 afterwards). Watch it with:
